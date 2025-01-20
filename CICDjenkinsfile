@@ -1,0 +1,200 @@
+def packageName = "app-devops-package-cicd.war"
+def artifactname = "app-devops-artifact-cicd.jar"
+def version = "1.${BUILD_NUMBER}"
+def semanticVersion = "1.${BUILD_NUMBER}.0"
+def repoName = "pramaraju96/ServiceNow-DevOps-Change-Sample" //Ensure after forking update the repoName accrodingly.
+def changeRequestNumber = null
+def package1 = false
+def package2 = false
+
+pipeline {
+	agent any
+	
+	tools {
+		maven 'rama01Maven'
+		//maven 'maven'
+	}
+
+	environment {
+		VERACODE_APPLICATION_NAME = 'ServiceNow DevOps App#1' //Ensure you update the correct Application name
+		VERACODE_SCANNER_NAME = 'Veracode'
+	} 
+
+	stages {
+		stage('Build') {
+			steps {
+				sh 'mvn -B -DskipTests clean compile'
+			}
+		}
+
+		stage('Test') {
+			steps {
+			  	sh 'mvn test'
+				sleep(5);
+			}
+			post {
+				always {
+					junit "**/target/surefire-reports/*.xml"
+				}
+			}
+		}
+
+/*		
+		stage('Generate SBOM') {
+			steps {
+			  	sh 'mvn org.cyclonedx:cyclonedx-maven-plugin:makeAggregateBom'
+				sleep(5);
+			}
+			post {
+				always {
+					sh 'ls -lta'
+				}
+			}
+		}
+*/
+
+		stage('Register Artifact') {
+			steps {
+				snDevOpsArtifact(artifactsPayload: """
+				{
+				"artifacts":
+				[
+				    {
+				        "name": "${artifactname}",
+				        "version": "${version}",
+				        "semanticVersion": "${semanticVersion}",
+				        "repositoryName": "${repoName}"
+				    }
+				],
+				"branchName": "main"
+				}""")
+			}     
+		}
+
+		stage('Sonar Scan') {
+			steps {
+				sonarSummaries()
+			}
+		}
+
+/*
+		stage('Veracode Security Scan') {
+			steps {
+
+				// using Veracode command, timeout of 20 minutes
+				//veracode applicationName: "${env.VERACODE_APPLICATION_NAME}", criticality: 'VeryHigh', debug: true, timeout: 20, fileNamePattern: '', pHost: '', pPassword: '', pUser: '', replacementPattern: '', sandboxName: '', scanExcludesPattern: '', scanIncludesPattern: '', scanName: "${BUILD_TAG}", uploadExcludesPattern: '', uploadIncludesPattern: 'target/ServiceNow-DevOps-Change-Sample-1.0-SNAPSHOT.jar', vid: "5a57339d6779ffb76782e03df3f6e9d1", vkey: "f31d151c427a3286469a6291b14dee15e7f553e066b32c801f09014dc3282de4f51a81cd0bde7c7dd9d95de9a71a32c8a2c582158f278320ae765fe9fd232e0a"
+				
+				sleep(10);
+
+				snDevOpsSecurityResult securityResultAttributes: '{"scanner":"Veracode", "applicationName":"ServiceNow DevOps App#1"}'
+				// scanner: Scanning tool and is required e.g. Veracode.
+				// applicationName: Name of your Veracode application and is required. This attribute is applicable only for Veracode.
+				// buildVersion: Veracode Scan name / build version and is optional. This attribute is applicable only for Veracode.
+				// securityToolId: Security tool onboarded in ServiceNow (sys_id of the onboarded security tool) and is optional.
+			}
+		}
+*/
+
+/*
+		stage('CheckmarxOne Security Scan') {
+			steps {
+				sleep(5);
+				snDevOpsSecurityResult securityResultAttributes: '{"scanner": "Checkmarx One", "projectName": "DemoProject", "projectId": "75acb348-c054-4ab3-807d-e17e92a923ab", "securityToolId":"322131cb8776bd10c29dea483cbb35ef"}'
+				// scanner: Scanning tool and is required e.g. Checkmarx One.
+				// projectName/projectId: Name/Id of your Checkmarx One project and is required. This attribute is applicable only for Checkmarx One.
+				// scanId: Checkmarx One scan id and is optional. This attribute is applicable only for Checkmarx One.
+				// securityToolId: Security tool onboarded in ServiceNow (sys_id of the onboarded security tool) and is optional.
+			}
+		}
+*/
+
+/*
+		stage('CheckmarxSAST Security Scan') {
+			steps {
+
+				// using Checkmarx command
+				checkmarxASTScanner additionalOptions: '', baseAuthUrl: 'https://iam.checkmarx.net', branchName: '', checkmarxInstallation: 'Checkmarx CLI', credentialsId: 'clientIdAkhand', projectName: 'DemoProject', serverUrl: 'https://ast.checkmarx.net', tenantName: 'servicenow-nfr'
+
+				snDevOpsSecurityResult securityResultAttributes: '{"scanner": "Checkmarx SAST", "projectId": "3285", "securityToolId": "ccb9798f87b6bd10c29dea483cbb35b7"}'
+				// scanner: Scanning tool and is required e.g. Checkmarx SAST.
+				// projectId: Id of your Checkmarx SAST project and is required. This attribute is applicable only for Checkmarx SAST.
+				// securityToolId: Security tool onboarded in ServiceNow (sys_id of the onboarded security tool) and is optional.
+			}
+		}
+*/
+
+		stage('Register Package') {
+				steps {
+					snDevOpsPackage(
+					name: "${packageName}",
+					artifactsPayload: """
+					{
+					    "artifacts":
+					    [
+						{
+						    "name": "${artifactname}",
+						    "version": "${version}",
+						    "semanticVersion": "${semanticVersion}",
+						    "repositoryName": "${repoName}"
+						}
+					    ],
+					    "branchName": "main"
+					}""")
+				}
+		}
+		  
+		stage('Change') {
+
+			steps {
+			    snDevOpsChange(changeRequestDetails: '''
+			    {
+				"autoCloseChange": true,
+				"attributes": {
+					"chg_model": {"name":"normal"}
+				}
+			    }''')
+			}
+		}
+
+		stage('Deploy') {
+			steps {
+				echo "Deploying the change..."
+			}
+		}
+	}
+}
+
+def sonarSummaries() {
+	withSonarQubeEnv(installationName: 'ramasonarcloud'){
+		sh 'mvn clean verify sonar:sonar \
+		    -Pcoverage \
+		    -Dsonar.token=1926d793f92181dd0ac406335d4d4bea392a3023 \
+		    -Dsonar.host.url=https://sonarcloud.io \
+		    -Dsonar.organization=pramaraju96 \
+		    -Dsonar.projectKey=pramaraju96_ServiceNow-DevOps-Change-Sample'
+    }
+}
+/*
+def sonarSummaries() {
+	withSonarQubeEnv(installationName: 'ramasonarcloud'){
+		sh 'mvn clean verify sonar:sonar \
+		    -Pcoverage \
+		    -Dsonar.token=1926d793f92181dd0ac406335d4d4bea392a3023 \
+		    -Dsonar.host.url=https://sonarcloud.io \
+		    -Dsonar.organization=pramaraju96 \
+		    -Dsonar.projectKey=pramaraju96_sonar-training-examples'
+    }
+}
+*/
+def sunilSonarSummaries() {
+//-Dsonar.projectKey=sonar-projects-validation_devops-project-sonar -Dsonar.organization=sonar-projects-validation -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=bc30d5fcb3aa234aef0ff13052c72f28bf75d8af -Dsonar.java.binaries=target/ -Dsonar.branch.name=master'
+	withSonarQubeEnv(installationName: 'sonarScanner'){
+		sh 'mvn clean verify sonar:sonar \
+		    -Pcoverage \
+		    -Dsonar.token=bc30d5fcb3aa234aef0ff13052c72f28bf75d8af \
+		    -Dsonar.host.url=https://sonarcloud.io \
+		    -Dsonar.organization=sonar-projects-validation \
+		    -Dsonar.projectKey=sonar-projects-validation_devops-project-sonar'
+    }
+}
+

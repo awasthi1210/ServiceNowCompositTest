@@ -1,0 +1,27 @@
+pipeline {
+    agent any
+    
+    stages {
+        
+        stage("build") {
+            steps {
+                echo 'this is build stage'
+            }
+        }
+        stage("test") {
+            
+            steps {
+		echo 'this is test stage1'
+		sleep(100)
+                echo 'this is test stage2'
+            }
+        }
+        stage("deploy") {
+            steps {
+                echo 'this is deploy stage'
+		snDevOpsChange()
+            }
+        }
+        
+    }   
+}
