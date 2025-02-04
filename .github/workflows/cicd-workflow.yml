@@ -133,7 +133,7 @@ jobs:
           # Orchestration Tool Id
           tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
           # Display Name of the Job
-          job-name: 'Register Artifact'
+          job-name: 'RegisterArtifact'
           # Github Context
           context-github: ${{ toJSON(github) }}
           # List of Artifacts to be registered
