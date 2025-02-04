@@ -4,8 +4,8 @@ name: CD GitHub workflow
 
 on:
   workflow_run:
-    workflows: [ "CI GitHub workflow" ]
-    types: [completed]
+    #workflows: [ "CI GitHub workflow" ]
+    #types: [completed]
 
 jobs:
   registerPackage:
@@ -25,14 +25,7 @@ jobs:
           # Github Context
           context-github: ${{ toJSON(github) }}
           # List of Artifacts in JSON format
-          artifacts: '[
-              {
-                  "name": "app-devops-ci.jar",
-                  "version": "1.${{ github.run_number }}",
-                  "semanticVersion": "1.${{ github.run_number }}.0",
-                  "repositoryName": "${{ github.repository }}"
-              }
-          ]'
+          artifacts: '[{"name": "app-devops-ci.jar","version": "1.0","semanticVersion": "1.0.0","repositoryName": "${{ github.repository }}" }]'
           # Name of the Package that contains list of artifacts
           package-name: 'app-devops-change-velocity.war'
           # Display Name of Job
