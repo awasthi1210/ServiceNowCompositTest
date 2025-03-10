@@ -38,7 +38,7 @@ jobs:
   #         timeout: '3600'
   #        # deployment-gate: '{"environment":"dev","jobId":"deploy","jobName":"Deploy"}'
   #        # setCloseCode":"true"
-  deploy:
+  deploy_rename:
     name: Deploy
     needs: build
     runs-on: ubuntu-latest
