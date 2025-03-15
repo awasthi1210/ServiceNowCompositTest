@@ -28,6 +28,8 @@
 	<properties>
 	    <java.version>11</java.version>
 	    <sonar.scanner.force-deprecated-java-version>true</sonar.scanner.force-deprecated-java-version>
+	    <sonar.organization>test-org-arnab</sonar.organization>
+  	    <sonar.host.url>https://sonarcloud.io</sonar.host.url>
 	</properties>	
 
 	<!-- Configure Maven Surefire Plugin for test execution -->
