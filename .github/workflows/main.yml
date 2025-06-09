@@ -1,11 +1,10 @@
 name: test-flow
-# Controls when the workflow will run
-# on:
-#   
+
+  
 on:
   workflow_dispatch
   
 jobs:
   eppactions:
     # if: github.event.pull_request.merged == true
-    uses: arnabsn/ServiceNowDevopsTest/edit/main/.github/workflows/test1.yml@main
+    uses: arnabsn/ServiceNowDevopsTest/.github/workflows/test1.yml@main
