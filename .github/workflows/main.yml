@@ -8,4 +8,4 @@ on:
 jobs:
   eppactions:
     # if: github.event.pull_request.merged == true
-    uses: arnabsn/ServiceNowDevopsTest/edit/main/.github/workflows/test1.yml
+    uses: arnabsn/ServiceNowDevopsTest/edit/main/.github/workflows/test1.yml@main
