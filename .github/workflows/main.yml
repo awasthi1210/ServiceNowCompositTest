@@ -1,1 +1,11 @@
-
+name: portaltest-uat-snow
+# Controls when the workflow will run
+# on:
+#   
+on:
+  workflow_dispatch
+  
+jobs:
+  eppactions:
+    # if: github.event.pull_request.merged == true
+    uses: arnabsn/ServiceNowDevopsTest/edit/main/.github/workflows/test1.yml
