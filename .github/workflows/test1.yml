@@ -1,6 +1,6 @@
 name: test_dev_flow
 
-on:  workflow_dispatch
+on:  workflow_call
 run-name: "Mona-Pipeline-child"
 
 jobs: 
