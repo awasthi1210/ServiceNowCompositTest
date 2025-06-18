@@ -6,5 +6,6 @@ on:
   
 jobs:
   eppactions:
+    name: 'job1'
     # if: github.event.pull_request.merged == true
     uses: awasthi1210/ServiceNowCompositTest/.github/workflows/test1.yml@main
