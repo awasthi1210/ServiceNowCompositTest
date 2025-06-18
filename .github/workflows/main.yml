@@ -7,4 +7,4 @@ on:
 jobs:
   eppactions:
     # if: github.event.pull_request.merged == true
-    uses: awasthi1210/ServiceNowCompositTest/blob/main/.github/workflows/test1.yml@main
+    uses: awasthi1210/ServiceNowCompositTest/.github/workflows/test1.yml@main
