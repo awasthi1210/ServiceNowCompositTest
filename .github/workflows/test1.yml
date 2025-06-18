@@ -35,7 +35,7 @@ jobs:
           devops-integration-user-password: ${{ secrets.SN_DEVOPS_PASSWORD }}
           # devops-integration-token: ${{ secrets.SN_DEVOPS_TOKEN }}
           # ServiceNow Instance Name
-          instance-url: ${{ secrets.SN_INSTANCE_URL }}
+          instance-url: "https://bugbashy2.service-now.com/"
           # Orchestration Tool Id
           tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
           # Job Name
