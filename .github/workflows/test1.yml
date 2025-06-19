@@ -28,9 +28,9 @@ jobs:
       - name: ServiceNow DevOps Change Attributes
         uses: ServiceNow/servicenow-devops-change@v6.0.0
         with:
-          devops-integration-user-name: ${{ secrets.SN_DEVOPS_USER }}
-          devops-integration-user-password: ${{ secrets.SN_DEVOPS_PASSWORD }}
-          # devops-integration-token: ${{ secrets.SN_DEVOPS_TOKEN }}
+          # devops-integration-user-name: ${{ secrets.SN_DEVOPS_USER }}
+          # devops-integration-user-password: ${{ secrets.SN_DEVOPS_PASSWORD }}
+          devops-integration-token: "rl9m6uhIutAEH065lhOeEBG13pvmA2gI"
           instance-url: "https://bugbashy2.service-now.com/"
           tool-id: "59ed63042b5ea21013fcfc5bf291bfec"
           context-github: ${{ toJSON(github) }}
